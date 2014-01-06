@@ -30,15 +30,15 @@
 
 - (void) addRequest:(TSRequest *)request
 {
-    [self synchronize:^{
+    @synchronized(self) {
         [self.requests addObject:request];
         [self _updatePriority];
-    }];
+    }
 }
 
 - (void) removeRequest:(TSRequest *)request
 {
-    [self synchronize:^{
+    @synchronized(self) {
         [self.requests removeObject:request];
         
         if ([self.requests count] > 0) {
@@ -46,7 +46,7 @@
         } else if (![self isCancelled]){
             [self cancel];
         }
-    }];
+    }
 }
 
 
@@ -56,47 +56,47 @@
         return;
     }
     
-    [self synchronize:^{
+    @synchronized(self) {
         for (TSRequest *request in self.requests) {
             enumerationBlock(request);
         };
-    }];
+    }
 }
 
 - (BOOL) shouldCacheOnDisk
 {
     __block BOOL shouldCache = NO;
-    [self synchronize:^{
+    @synchronized(self) {
         for (TSRequest *requst in self.requests) {
             if (requst.shouldCacheOnDisk) {
                 shouldCache = YES;
                 break;
             }
         }
-    }];
+    }
     return shouldCache;
 }
 
 - (BOOL) shouldCacheInMemory
 {
     __block BOOL shouldCache = NO;
-    [self synchronize:^{
+    @synchronized(self) {
         for (TSRequest *requst in self.requests) {
             if (requst.shouldCacheInMemory) {
                 shouldCache = YES;
                 break;
             }
         }
-    }];
+    }
     return shouldCache;
 }
 
 
 - (void) updatePriority
 {
-    [self synchronize:^{
+    @synchronized(self) {
         [self _updatePriority];
-    }];
+    }
 }
 
 - (void) _updatePriority
@@ -116,13 +116,23 @@
     self.queuePriority = priority;
     
     if (![self isExecuting]) {
-        self.dispatchQueuePriority = OperationDispatchQueuePriorityFromRequestThreadPriority(tPriority);
+        self.threadPriority = ThreadPriorityFromRequestThreadPriority(tPriority);
     }
 }
 
-TSOperationDispatchQueuePriority OperationDispatchQueuePriorityFromRequestThreadPriority(TSRequestThreadPriority requestPriority)
+static double ThreadPriorityFromRequestThreadPriority(TSRequestThreadPriority requestPriority)
 {
-    return (TSOperationDispatchQueuePriority)requestPriority;
+    switch (requestPriority) {
+        case TSRequestThreadPriorityBackground:
+            return 0;
+        default:
+        case TSRequestThreadPriorityLow:
+            return 0.3;
+        case TSRequestThreadPriorityNormal:
+            return 0.5;
+        case TSRequestThreadPriorityHight:
+            return 0.6;
+    }
 }
 
 @end

@@ -9,12 +9,11 @@
 #import "TSOperationQueue.h"
 #import "TSBackgroundThreadQueue.h"
 #import "TSOperation+Private.h"
-#import "TSOperationQueue_Private.h"
 
 @implementation TSOperationQueue {
     NSMutableDictionary *operationsDictionary;
     dispatch_queue_t syncQueue;
-    NSMutableDictionary *backgroundThreads;
+    TSOperationQueueWorker *worker;
 }
 
 - (id)init
@@ -24,7 +23,7 @@
         syncQueue = dispatch_queue_create("TSOperationQueueSyncQueue", DISPATCH_QUEUE_SERIAL);
         
         operationsDictionary = [NSMutableDictionary new];
-        backgroundThreads = [NSMutableDictionary new];
+        worker = [TSOperationQueueWorker new];
     }
     return self;
 }
@@ -38,7 +37,7 @@
 {
     [super addOperation:operation];
     
-    operation.operationQueue = self;
+    operation.worker = worker;
     
     dispatch_async(syncQueue, ^{
         operationsDictionary[identifier] = operation;
@@ -69,37 +68,5 @@
     });
 }
 
-- (void) enqueueBlock:(dispatch_block_t)block onPriority:(TSOperationDispatchQueuePriority)priority
-{
-    [[self queueForPriority:priority] dispatchAsync:block];
-}
-
-- (TSBackgroundThreadQueue *) queueForPriority:(TSOperationDispatchQueuePriority)priority
-{
-    CGFloat threadPriority = ThreadPriorityFromDispatchQueuePriority(priority);
-    TSBackgroundThreadQueue *queue = backgroundThreads[@(threadPriority)];
-    
-    if (!queue) {
-        queue = [[TSBackgroundThreadQueue alloc] initWithName:@"TSOperationQueueWorkingThread" threadPriority:threadPriority];
-        backgroundThreads[@(threadPriority)] = queue;
-    }
-    
-    return queue;
-}
-
-static CGFloat ThreadPriorityFromDispatchQueuePriority(TSOperationDispatchQueuePriority priority)
-{
-    switch (priority) {
-        case TSOperationDispatchQueuePriorityBackground:
-            return 0;
-        default:
-        case TSOperationDispatchQueuePriorityLow:
-            return 0.3;
-        case TSOperationDispatchQueuePriorityNormal:
-            return 0.5;
-        case TSOperationDispatchQueuePriorityHight:
-            return 0.6;
-    }
-}
 
 @end

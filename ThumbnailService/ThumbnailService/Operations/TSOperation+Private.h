@@ -7,15 +7,13 @@
 //
 
 #import "TSOperation.h"
-#import "TSOperationQueue.h"
+#import "TSOperationQueueWorker.h"
 
 @interface TSOperation ()
 
-@property (nonatomic, weak) TSOperationQueue *operationQueue;
+@property (nonatomic, weak) TSOperationQueueWorker *worker;
 
 - (void) onComplete;
 - (void) onCancel;
-
-- (void) synchronize:(dispatch_block_t)block;
 
 @end

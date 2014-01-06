@@ -8,7 +8,6 @@
 
 #import "TSOperation.h"
 #import "TSOperation+Private.h"
-#import "TSOperationQueue_Private.h"
 
 @interface TSOperation ()
 
@@ -21,9 +20,7 @@
 
 @end
 
-@implementation TSOperation {
-    TSOperationDispatchQueuePriority dispatchQueuePriority;
-}
+@implementation TSOperation
 
 @synthesize completionBlocks = _completionBlocks;
 @synthesize cancelBlocks = _cancelBlocks;
@@ -45,18 +42,6 @@
     return self;
 }
 
-- (void) dealloc
-{
-
-}
-
-- (void) synchronize:(dispatch_block_t)block
-{
-    @synchronized(self){
-        block();
-    }
-}
-
 #pragma mark - NSOperation cuncurrent support
 
 - (void) start
@@ -65,11 +50,11 @@
     if (![self isCancelled]) {
         self.executing = YES;
         
-        [self.operationQueue enqueueBlock:^{
+        [self.worker enqueueBlock:^{
             [self main];
             self.executing = NO;
             self.finished = YES;
-        } onPriority:self.dispatchQueuePriority];
+        } onThreadPriority:self.threadPriority];
         
     } else {
         self.finished = YES;
@@ -88,24 +73,8 @@
 
 - (void) cancel
 {
-    if (self.started && !self.finished) {
-        self.finished = YES;
-    }
-
     [self onCancel];
     [super cancel];
-}
-
-#pragma mark - Thread priority
-
-- (void) setDispatchQueuePriority:(TSOperationDispatchQueuePriority)priority
-{
-    dispatchQueuePriority = priority;
-}
-
-- (TSOperationDispatchQueuePriority) dispatchQueuePriority
-{
-    return dispatchQueuePriority;
 }
 
 #pragma mark - Operation termination
@@ -142,33 +111,33 @@
 
 - (void) addCompleteBlock:(TSOperationCompletion)completionBlock
 {
-    [self synchronize:^{
+    @synchronized(self) {
         [_completionBlocks addObject:completionBlock];
-    }];
+    }
 }
 
 - (void) addCancelBlock:(TSOperationCompletion)cancelBlock
 {
-    [self synchronize:^{
+    @synchronized(self) {
         [_cancelBlocks addObject:cancelBlock];
-    }];
+    }
 }
 
 - (NSMutableSet *) completionBlocks
 {
     __block NSMutableSet *set;
-    [self synchronize:^{
+    @synchronized(self) {
         set = _completionBlocks;
-    }];
+    }
     return set;
 }
 
 - (NSMutableSet *) cancelBlocks
 {
     __block NSMutableSet *set;
-    [self synchronize:^{
+    @synchronized(self) {
         set = _cancelBlocks;
-    }];
+    }
     return set;
 }
 

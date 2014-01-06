@@ -15,7 +15,7 @@
 @end
 
 
-@interface Worker : NSObject
+@interface TSBackgroundThreadWorker : NSObject
 
 @property (nonatomic, weak) id<WorkerProvider> provider;
 
@@ -32,7 +32,7 @@
 
 @implementation TSBackgroundThreadQueue {
     NSMutableArray *queue;
-    Worker *worker;
+    TSBackgroundThreadWorker *worker;
     
     NSString *threadName;
     CGFloat threadPriority;
@@ -42,7 +42,7 @@
 {
     self = [super init];
     if (self) {
-        worker = [[Worker alloc] init];
+        worker = [[TSBackgroundThreadWorker alloc] init];
         worker.provider = self;
         queue = [[NSMutableArray alloc] initWithCapacity:100];
         
@@ -97,7 +97,7 @@
 
 @end
 
-@implementation Worker {
+@implementation TSBackgroundThreadWorker {
     BOOL isCancelled;
     dispatch_semaphore_t semaphore;
 }
@@ -114,7 +114,6 @@
 
 - (void) main
 {
-    NSLog(@"Thread started %@",self);
     while (![self isCancelled]) {
 
         dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
@@ -124,8 +123,6 @@
             block();
         }
     }
-    
-     NSLog(@"Thread stopped %@",self);
 }
 
 - (NSString *)description
