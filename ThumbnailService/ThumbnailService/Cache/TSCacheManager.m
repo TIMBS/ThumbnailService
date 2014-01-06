@@ -14,7 +14,7 @@
     TSFileCache *fileCache;
 }
 
-- (id)init
+- (id) init
 {
     self = [super init];
     if (self) {
@@ -25,33 +25,33 @@
     return self;
 }
 
-- (void)setMemoryLimitInBytes:(NSUInteger)memoryLimitInBytes
+- (void) setMemoryLimitInBytes:(NSUInteger)memoryLimitInBytes
 {
     memoryCache.totalCostLimit = memoryLimitInBytes;
 }
 
-- (NSUInteger)memoryLimitInBytes
+- (NSUInteger) memoryLimitInBytes
 {
     return memoryCache.totalCostLimit;
 }
 
-- (TSFileCache *)fileCache
+- (TSFileCache *) fileCache
 {
     return fileCache;
 }
 
-- (NSCache *)memoryCache
+- (NSCache *) memoryCache
 {
     return memoryCache;
 }
 
-- (void)setName:(NSString *)n
+- (void) setName:(NSString *)n
 {
     memoryCache.name = n;
     fileCache.name = n;
 }
 
-- (NSString *)name
+- (NSString *) name
 {
     return memoryCache.name;
 }
@@ -74,7 +74,7 @@
     return exists;
 }
 
-- (id)objectForKey:(id)key mode:(TSCacheManagerMode)mode
+- (id) objectForKey:(id)key mode:(TSCacheManagerMode)mode
 {
     id object = nil;
     
@@ -99,7 +99,7 @@
     return CGImageGetBytesPerRow(image.CGImage) * CGImageGetHeight(image.CGImage);
 }
 
-- (void)setObject:(id)obj forKey:(id)key mode:(TSCacheManagerMode)mode
+- (void) setObject:(id)obj forKey:(id)key mode:(TSCacheManagerMode)mode
 {
     NSUInteger cost = 0;
     if ([obj isKindOfClass:[UIImage class]]) {
@@ -109,7 +109,7 @@
     [self setObject:obj forKey:key cost:cost mode:mode];
 }
 
-- (void)setObject:(id)obj forKey:(id)key cost:(NSUInteger)g mode:(TSCacheManagerMode)mode
+- (void) setObject:(id)obj forKey:(id)key cost:(NSUInteger)g mode:(TSCacheManagerMode)mode
 {
     if (mode & TSCacheManagerModeMemory) {
         [memoryCache setObject:obj forKey:key cost:g];
@@ -119,7 +119,7 @@
     }
 }
 
-- (void)removeObjectForKey:(id)key mode:(TSCacheManagerMode)mode
+- (void) removeObjectForKey:(id)key mode:(TSCacheManagerMode)mode
 {
     if (mode & TSCacheManagerModeMemory) {
         [memoryCache removeObjectForKey:key];
@@ -129,7 +129,7 @@
     }
 }
 
-- (void)removeAllObjectsForMode:(TSCacheManagerMode)mode
+- (void) removeAllObjectsForMode:(TSCacheManagerMode)mode
 {
     if (mode & TSCacheManagerModeMemory) {
         [memoryCache removeAllObjects];

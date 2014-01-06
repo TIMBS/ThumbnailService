@@ -7,8 +7,11 @@
 //
 
 #import "TSOperation.h"
+#import "TSOperationQueue.h"
 
 @interface TSOperation ()
+
+@property (nonatomic, weak) TSOperationQueue *operationQueue;
 
 - (void) onComplete;
 - (void) onCancel;

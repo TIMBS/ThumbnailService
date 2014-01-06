@@ -7,10 +7,14 @@
 //
 
 #import "TSOperationQueue.h"
+#import "TSBackgroundThreadQueue.h"
+#import "TSOperation+Private.h"
+#import "TSOperationQueue_Private.h"
 
 @implementation TSOperationQueue {
-    NSMutableDictionary *dictionary;
+    NSMutableDictionary *operationsDictionary;
     dispatch_queue_t syncQueue;
+    NSMutableDictionary *backgroundThreads;
 }
 
 - (id)init
@@ -19,12 +23,13 @@
     if (self) {
         syncQueue = dispatch_queue_create("TSOperationQueueSyncQueue", DISPATCH_QUEUE_SERIAL);
         
-        dictionary = [NSMutableDictionary new];
+        operationsDictionary = [NSMutableDictionary new];
+        backgroundThreads = [NSMutableDictionary new];
     }
     return self;
 }
 
-- (void)dealloc
+- (void) dealloc
 {
     dispatch_release(syncQueue);
 }
@@ -33,8 +38,10 @@
 {
     [super addOperation:operation];
     
+    operation.operationQueue = self;
+    
     dispatch_async(syncQueue, ^{
-        dictionary[identifier] = operation;
+        operationsDictionary[identifier] = operation;
     });
 
     __weak typeof (self) weakSelf = self;
@@ -50,7 +57,7 @@
 {
     __block TSOperation *operation = nil;
     dispatch_sync(syncQueue, ^{
-        operation = dictionary[identifier];
+        operation = operationsDictionary[identifier];
     });
     return operation;
 }
@@ -58,8 +65,41 @@
 - (void) operationDidFinishForIdentifier:(NSString *)identifier
 {
     dispatch_async(syncQueue, ^{
-        [dictionary removeObjectForKey:identifier];
+        [operationsDictionary removeObjectForKey:identifier];
     });
+}
+
+- (void) enqueueBlock:(dispatch_block_t)block onPriority:(TSOperationDispatchQueuePriority)priority
+{
+    [[self queueForPriority:priority] dispatchAsync:block];
+}
+
+- (TSBackgroundThreadQueue *) queueForPriority:(TSOperationDispatchQueuePriority)priority
+{
+    CGFloat threadPriority = ThreadPriorityFromDispatchQueuePriority(priority);
+    TSBackgroundThreadQueue *queue = backgroundThreads[@(threadPriority)];
+    
+    if (!queue) {
+        queue = [[TSBackgroundThreadQueue alloc] initWithName:@"TSOperationQueueWorkingThread" threadPriority:threadPriority];
+        backgroundThreads[@(threadPriority)] = queue;
+    }
+    
+    return queue;
+}
+
+static CGFloat ThreadPriorityFromDispatchQueuePriority(TSOperationDispatchQueuePriority priority)
+{
+    switch (priority) {
+        case TSOperationDispatchQueuePriorityBackground:
+            return 0;
+        default:
+        case TSOperationDispatchQueuePriorityLow:
+            return 0.3;
+        case TSOperationDispatchQueuePriorityNormal:
+            return 0.5;
+        case TSOperationDispatchQueuePriorityHight:
+            return 0.6;
+    }
 }
 
 @end

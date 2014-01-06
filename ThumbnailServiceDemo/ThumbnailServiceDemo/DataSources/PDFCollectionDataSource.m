@@ -70,6 +70,8 @@
     }
     
     if (i < pagesCount) {
+        __weak typeof (self) weakSelf = self;
+        
         TSRequest *request = [TSRequest new];
         
         CGPDFPageRef page = CGPDFDocumentGetPage(document, i);
@@ -79,7 +81,7 @@
         request.queuePriority = NSOperationQueuePriorityVeryLow;
         request.shouldCacheInMemory = NO;
         [request setThumbnailCompletion:^(UIImage *result, NSError *error) {
-            [self precachePagesFromIndex:i+1];
+            [weakSelf precachePagesFromIndex:i+1];
         }];
         if (![thumbnailService hasDiskCacheForRequest:request]) {
             [thumbnailService enqueueRequest:request];

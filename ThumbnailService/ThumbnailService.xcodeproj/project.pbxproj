@@ -30,6 +30,7 @@
 		FA2677801807AFB900F5B02B /* TSSource.m in Sources */ = {isa = PBXBuildFile; fileRef = FA2677781807AFB900F5B02B /* TSSource.m */; };
 		FA2677811807AFB900F5B02B /* ThumbnailService.m in Sources */ = {isa = PBXBuildFile; fileRef = FA26777A1807AFB900F5B02B /* ThumbnailService.m */; };
 		FA26778A1807B1F500F5B02B /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA2677891807B1F500F5B02B /* UIKit.framework */; };
+		FA32E51B18796ACC00B975DF /* TSBackgroundThreadQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = FA32E51A18796ACC00B975DF /* TSBackgroundThreadQueue.m */; };
 		FA540529180A74CE0092752B /* TSRequestGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = FA540528180A74CE0092752B /* TSRequestGroup.m */; };
 		FA54052F180A76220092752B /* TSRequestGroupSequence.m in Sources */ = {isa = PBXBuildFile; fileRef = FA54052E180A76220092752B /* TSRequestGroupSequence.m */; };
 		FA54054B180AC88E0092752B /* TestUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = FA54054A180AC88E0092752B /* TestUtils.m */; };
@@ -106,6 +107,9 @@
 		FA2677791807AFB900F5B02B /* ThumbnailService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThumbnailService.h; sourceTree = "<group>"; };
 		FA26777A1807AFB900F5B02B /* ThumbnailService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ThumbnailService.m; sourceTree = "<group>"; };
 		FA2677891807B1F500F5B02B /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		FA32E5161879696800B975DF /* TSBackgroundThreadQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TSBackgroundThreadQueue.h; sourceTree = "<group>"; };
+		FA32E519187969D300B975DF /* TSOperationQueue_Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TSOperationQueue_Private.h; sourceTree = "<group>"; };
+		FA32E51A18796ACC00B975DF /* TSBackgroundThreadQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TSBackgroundThreadQueue.m; sourceTree = "<group>"; };
 		FA540527180A74CE0092752B /* TSRequestGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TSRequestGroup.h; sourceTree = "<group>"; };
 		FA540528180A74CE0092752B /* TSRequestGroup.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TSRequestGroup.m; sourceTree = "<group>"; };
 		FA54052D180A76220092752B /* TSRequestGroupSequence.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TSRequestGroupSequence.h; sourceTree = "<group>"; };
@@ -312,6 +316,9 @@
 			children = (
 				FA67E49E18083C8500B64944 /* TSOperationQueue.h */,
 				FA67E49F18083C8500B64944 /* TSOperationQueue.m */,
+				FA32E519187969D300B975DF /* TSOperationQueue_Private.h */,
+				FA32E5161879696800B975DF /* TSBackgroundThreadQueue.h */,
+				FA32E51A18796ACC00B975DF /* TSBackgroundThreadQueue.m */,
 			);
 			path = OperationQueue;
 			sourceTree = "<group>";
@@ -423,6 +430,7 @@
 				FA2677811807AFB900F5B02B /* ThumbnailService.m in Sources */,
 				FA26777C1807AFB900F5B02B /* TSGenerateOperation.m in Sources */,
 				FA2677801807AFB900F5B02B /* TSSource.m in Sources */,
+				FA32E51B18796ACC00B975DF /* TSBackgroundThreadQueue.m in Sources */,
 				FA6A86CF1810F6510063C6F9 /* TSRequestedOperation.m in Sources */,
 				FAF9C734180EF6D10091CE94 /* TSSourcePDFPage.m in Sources */,
 				FA54052F180A76220092752B /* TSRequestGroupSequence.m in Sources */,

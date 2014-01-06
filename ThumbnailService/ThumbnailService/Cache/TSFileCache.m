@@ -7,6 +7,7 @@
 //
 
 #import "TSFileCache.h"
+#import "TSBackgroundThreadQueue.h"
 
 static NSString *kCacheExtensionImage  = @"image";
 static NSString *kCacheExtensionObject = @"object";
@@ -14,18 +15,18 @@ static NSString *kCacheExtensionObject = @"object";
 @implementation TSFileCache {
     NSFileManager *fileManager;
     NSString *_cacheDirectory;
-    dispatch_queue_t fileCacheQueue;
+    TSBackgroundThreadQueue *fileCacheQueue;
 }
 
-- (id)init
+- (id) init
 {
     self = [super init];
     if (self) {
         fileManager = [NSFileManager defaultManager];
         [self createCacheDirectory];
         
-        fileCacheQueue = dispatch_queue_create("TSFileCacheQueue", DISPATCH_QUEUE_SERIAL);
-        dispatch_set_target_queue(fileCacheQueue, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0));
+        
+        fileCacheQueue = [[TSBackgroundThreadQueue alloc] initWithName:@"TSFileCacheQueue" threadPriority:0.4];
         
         self.imageWriteMode = TSFileCacheImageWriteModePNG;
         self.imageWriteCompressionQuality = 0.6;
@@ -33,14 +34,9 @@ static NSString *kCacheExtensionObject = @"object";
     return self;
 }
 
-- (void)dealloc
-{
-    dispatch_release(fileCacheQueue);
-}
-
 #pragma mark - NSCache overrides
 
-- (id)objectForKey:(id)key
+- (id) objectForKey:(id)key
 {
     __block id object = nil;
     
@@ -60,43 +56,48 @@ static NSString *kCacheExtensionObject = @"object";
     return object;
 }
 
-- (void)setObject:(id)obj forKey:(id)key
+- (void) setObject:(id)obj forKey:(id)key
 {
     [self setObject:obj forKey:key cost:0];
 }
 
-- (void)setObject:(id)object forKey:(id)key cost:(NSUInteger)g
+- (void) setObject:(id)object forKey:(id)key cost:(NSUInteger)g
 {
+    __weak typeof (self) weakSelf = self;
+    
     dispatch_block_t writeBlock = ^{
         @autoreleasepool {
             NSString *extension;
             NSData *data;
             if ([object isKindOfClass:[UIImage class]]) {
-                data = [self dataFromImage:object];
-                extension = [self imageExtension];
+                data = [weakSelf dataFromImage:object];
+                extension = [weakSelf imageExtension];
             } else {
                 data = [NSKeyedArchiver archivedDataWithRootObject:object];
                 extension = kCacheExtensionObject;
             }
-            NSString *path = [[[self cacheDirectory] stringByAppendingPathComponent:key] stringByAppendingPathExtension:extension];
-            [data writeToFile:path options:0 error:nil];
+            
+            if (weakSelf) {
+                NSString *path = [[[weakSelf cacheDirectory] stringByAppendingPathComponent:key] stringByAppendingPathExtension:extension];
+                [data writeToFile:path options:0 error:nil];
+            }
         }
     };
     
     if (self.shouldWriteAsynchronically) {
-        dispatch_async(fileCacheQueue, writeBlock);
+        [fileCacheQueue dispatchAsync:writeBlock];
     } else {
         writeBlock();
     }
 }
 
-- (void)removeObjectForKey:(id)key
+- (void) removeObjectForKey:(id)key
 {
     NSString *path = [self pathForKey:key];
     [fileManager removeItemAtPath:path error:nil];
 }
 
-- (void)removeAllObjects
+- (void) removeAllObjects
 {
     [fileManager removeItemAtPath:[self cacheDirectory] error:nil];
     [self createCacheDirectory];

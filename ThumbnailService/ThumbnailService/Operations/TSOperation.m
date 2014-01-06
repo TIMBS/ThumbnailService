@@ -8,6 +8,7 @@
 
 #import "TSOperation.h"
 #import "TSOperation+Private.h"
+#import "TSOperationQueue_Private.h"
 
 @interface TSOperation ()
 
@@ -63,11 +64,13 @@
     self.started = YES;
     if (![self isCancelled]) {
         self.executing = YES;
-        dispatch_async(dispatch_get_global_queue(GlobalQueuePriorityFromDispatchQueuePriority(self.dispatchQueuePriority), 0), ^{
+        
+        [self.operationQueue enqueueBlock:^{
             [self main];
             self.executing = NO;
             self.finished = YES;
-        });
+        } onPriority:self.dispatchQueuePriority];
+        
     } else {
         self.finished = YES;
     }
@@ -185,21 +188,6 @@
             complete(self);
         }
     });
-}
-
-dispatch_queue_priority_t GlobalQueuePriorityFromDispatchQueuePriority(TSOperationDispatchQueuePriority priority)
-{
-    switch (priority) {
-        case TSOperationDispatchQueuePriorityBackground:
-            return DISPATCH_QUEUE_PRIORITY_BACKGROUND;
-        default:
-        case TSOperationDispatchQueuePriorityLow:
-            return DISPATCH_QUEUE_PRIORITY_LOW;
-        case TSOperationDispatchQueuePriorityNormal:
-            return DISPATCH_QUEUE_PRIORITY_DEFAULT;
-        case TSOperationDispatchQueuePriorityHight:
-            return DISPATCH_QUEUE_PRIORITY_HIGH;
-    }
 }
 
 - (NSString *) description
