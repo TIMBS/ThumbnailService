@@ -125,7 +125,7 @@
     }
 }
 
-- (NSString *)description
+- (NSString *) description
 {
     return [NSString stringWithFormat:@"<%@ %p, priority=%g, name=%@>",[self class],self,[NSThread threadPriority],[[NSThread currentThread] name]];
 }

@@ -215,7 +215,7 @@
 				FA26776B1807AFB900F5B02B /* Operations */,
 				FA2677721807AFB900F5B02B /* Request */,
 				FA540526180A74BE0092752B /* RequestGroup */,
-				FA2677761807AFB900F5B02B /* Sources */,
+				FA2677761807AFB900F5B02B /* Thumbnail Sources */,
 				FA2677791807AFB900F5B02B /* ThumbnailService.h */,
 				FA26777A1807AFB900F5B02B /* ThumbnailService.m */,
 			);
@@ -283,7 +283,7 @@
 			path = Request;
 			sourceTree = "<group>";
 		};
-		FA2677761807AFB900F5B02B /* Sources */ = {
+		FA2677761807AFB900F5B02B /* Thumbnail Sources */ = {
 			isa = PBXGroup;
 			children = (
 				FAF9C73C180EFBBF0091CE94 /* TSSources.h */,
@@ -299,6 +299,7 @@
 				FA6A86E0181195090063C6F9 /* TSSourceVideo.m */,
 				FAF9C735180EF6DB0091CE94 /* Utils */,
 			);
+			name = "Thumbnail Sources";
 			path = Sources;
 			sourceTree = "<group>";
 		};
