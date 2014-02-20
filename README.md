@@ -70,7 +70,7 @@ In this example, thumbnailService executes sequentially smallThumbRequest then b
 
 Sometimes you want to execute request synchonically. For example if image is already cached on disk, it is cheap to load on main thread.
 
-```objc 
+```objc
 if ([thumbnailService hasDiskCacheForRequest:request]) {
     [thumbnailService executeRequest:request];
 } else {
